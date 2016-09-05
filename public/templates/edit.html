@@ -1,0 +1,35 @@
+	<div class="page-header">
+		<h3>
+			Edition de patient
+		</h3>
+	</div>
+	<form ng-submit="updatePost(post)"
+        style="margin-top:30px;">
+        <!--
+		<div class="form-group">
+			<input type="text"
+				class="form-control"
+				placeholder="Title"
+				ng-model="post._id">
+			</input>
+        </div>
+		-->
+		<div class="form-group">
+			<input type="text"
+				class="form-control"
+				placeholder="Title"
+				ng-model="post.title"
+				id="title">
+			</input>
+        </div>
+        <div class="form-group">
+          <input type="text"
+          class="form-control"
+		  placeholder="Link"
+          ng-model="post.link"
+		  id="link"></input>
+        </div>
+		<a href="#/posts"><button class="btn btn-primary">Annuler</button></a>
+        <button type="submit" class="btn btn-primary">Sauvegarder</button>
+	</form>
+	
