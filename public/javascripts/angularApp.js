@@ -54,6 +54,17 @@ app.factory('posts', ['$http','growl', function($http,growl){
 		//	growl.success("<b>Patient mis à jour ");//, config);
 		//});
 	};
+	o.delete = function(post){
+		return $http.delete('/posts/'+ post._id, post)
+			.success(function(data){
+				console.log("deleted");
+				//o.posts.push(data);
+				//growl.success("<b>Patient mis à jour ");//, config);
+			})
+			.error(function(data){
+				console.log("error "+data);
+			});
+	}
 	
 	o.upvote = function(post) {
 		return $http.put('/posts/' + post._id + '/upvote')
@@ -235,6 +246,7 @@ app.controller('PostFormCtrl', [
 	'posts',
 	/*'$location',*/
 	'growl',
+	//'popupService'
 	function($scope, posts, growl/*,$location*/){	
 		$scope.addPost = function(){
 			if(!$scope.title || $scope.title === '') { return; }
@@ -258,6 +270,7 @@ app.controller('PostEditCtrl', [
 	'$stateParams',
 	'posts',
 	'post',
+	
 	function($scope, $state, $stateParams, posts,post){	
 		$scope.post = post;
 		//DOESNT WORK
@@ -274,6 +287,13 @@ app.controller('PostEditCtrl', [
 			//console.log("updated");
 			$state.go('home');
 		};
+		
+		$scope.deletePost=function(post){
+			console.log("delete");
+			console.log($stateParams.id);
+			posts.delete(post);
+			$state.go('home');
+		}
 	}	
 ]);
 

@@ -3,9 +3,9 @@
 			Edition de patient
 		</h3>
 	</div>
-	<form ng-submit="updatePost(post)"
-        style="margin-top:30px;">
-        <!--
+	<!--<form ng-submit="updatePost(post)" style="margin-top:30px;">-->
+	<form style="margin-top:30px;">
+	 <!--
 		<div class="form-group">
 			<input type="text"
 				class="form-control"
@@ -30,6 +30,8 @@
 		  id="link"></input>
         </div>
 		<a href="#/posts"><button class="btn btn-primary">Annuler</button></a>
-        <button type="submit" class="btn btn-primary">Sauvegarder</button>
+        <button ng-click="deletePost(post)" class="btn btn-danger">Supprimer</button>
+		<!--<button type="submit" class="btn btn-primary">Sauvegarder</button>-->
+		<button ng-click="updatePost(post)" class="btn btn-primary">Sauvegarder</button>
 	</form>
 	

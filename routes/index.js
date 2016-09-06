@@ -105,8 +105,20 @@
 			});
 		});
 	});
+	// delete single post 
+	router.delete('/posts/:id', function (req, res){
+		Post.findOneAndRemove({_id : new mongoose.mongo.ObjectID(req.params.id)},function(err){
+		//DOES NOT WORK
+		//Post.remove({ id: req.params.id }, function(err) {	
+		//Post.findByIdAndRemove(req.params.id, function (err) {
+			if (!err) {
+				return res.send('Post deleted!');
+			} else {
+				return res.send('Error deleting post!');
+			}
+		});
+	});
 	
-
 	router.put('/posts/:post/upvote', function(req, res, next) {
 	  req.post.upvote(function(err, post){
 		if (err) { return next(err); }
