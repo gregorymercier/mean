@@ -10,8 +10,6 @@
 	  res.render('index', { title: 'Express' });
 	});
 
-
-
 	// get posts
 	router.get('/posts', function(req, res, next) {
 	  Post.find(function(err, posts){
@@ -32,41 +30,6 @@
 	  });
 	});
 	
-	// update posts
-	//http://stackoverflow.com/questions/25408243/trouble-with-put-request-using-node-js-express-angular-and-mongodb
-	router.put('/posts', function(req, res) {
-		console.log(req.body);
-		var id = req.body.id;
-		console.log(id);
-		if(!req.body) { 
-			return res.sendStatus(400); 
-		} // 6
-
-		Post.findById(id, function(e,data){  
-			if(e) { 
-			    console.log(e);
-				return res.sendStatus(500, e); 
-			} // 1, 2
-
-			if(!data) { 
-				return res.sendStatus(404); 
-			} // 3
-
-			var updateData = { 
-				title : 'hello'//,//req.body.title, 
-				//link : 'hello'//req.body.link 
-			}; // 4
-
-			Post.update({ _id: id }, { $set: updateData},function(err) { // 5
-			//Post.updateById(id, update, function(err) { // 5
-				if(err) {
-					return res.sendStatus(500, err);
-				}
-
-			});
-		});
-	});
-
 	router.param('post', function(req, res, next, id) {
 	  var query = Post.findById(id);
 
