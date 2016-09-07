@@ -190,6 +190,11 @@ function($stateProvider, $urlRouterProvider) {
 		templateUrl: 'templates/postForm.html',
 		controller: 'PostFormCtrl'
 	})
+	.state('createPatient', {
+		url: '/createPatient',
+		templateUrl: 'templates/createPatient.html',
+		controller: 'createPatientCtrl'
+	})
 	.state('postEdit', {
 		url: '/posts/{id}/edit',
 		templateUrl: 'templates/edit.html',
@@ -241,13 +246,11 @@ app.controller('PostsCtrl', [
 			};
 	
 }]);
-app.controller('PostFormCtrl', [
+app.controller('createPatientCtrl', [
 	'$scope',
 	'posts',
-	/*'$location',*/
 	'growl',
-	//'popupService'
-	function($scope, posts, growl/*,$location*/){	
+	function($scope, posts, growl){	
 		$scope.addPost = function(){
 			if(!$scope.title || $scope.title === '') { return; }
 			posts.create({
@@ -256,7 +259,15 @@ app.controller('PostFormCtrl', [
 			});
 			$scope.title = '';
 			$scope.link = '';
-			//$location.path='/home';
+		};
+		$scope.createPatient = function(){
+			if(!$scope.title || $scope.title === '') { return; }
+			posts.create({
+				title: $scope.title,
+				link: $scope.link
+			});
+			$scope.title = '';
+			$scope.link = '';
 		};
 		$scope.notify = function(){
 			var config = {};
