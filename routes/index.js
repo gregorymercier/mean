@@ -4,12 +4,84 @@
 
 	var Post = mongoose.model('Post');
 	var Comment = mongoose.model('Comment');
+	var Patient = mongoose.model('Patient');
 
+	
 	// GET home page. 
 	router.get('/', function(req, res, next) {
 	  res.render('index', { title: 'Express' });
 	});
 
+	//-----------------------------//
+	//------- Patient -------------//
+	//-----------------------------//
+	// get patients
+	router.get('/patients', function(req, res, next) {
+	  Patient.find(function(err, patients){
+		if(err){ return next(err); }
+
+		res.json(patients);
+	  });
+	});
+	// create patient
+	router.post('/patients', function(req, res, next) {
+	  var patient = new Patient(req.body);
+	  patient.save(function(err, patient){
+		if(err){ return next(err); }
+
+		res.json(patient);
+	  });
+	});
+	// patient parameter
+	router.param('patient', function(req, res, next, id) {
+	  var query = Patient.findById(id);
+
+	  query.exec(function (err, patient){
+		if (err) { return next(err); }
+		if (!patient) { return next(new Error('can\'t find patient')); }
+
+		req.patient = patient;
+		return next();
+	  });
+	});
+	router.get('/patients/:patient', function(req, res, next) {
+	  //req.patient.populate('comments', function(err, post) {
+	  //if (err) { return next(err); }
+		res.json(patient);
+	  //});
+	});
+	
+	// update single patient 
+	router.put('/patients/:id', function (req, res){
+		return Patient.findById(req.params.id, function (err, patient) {
+			console.log(req.params.id);
+			patient.lastname = req.body.lastname;
+			patient.firstname = req.body.firstname;
+			console.log(req.body);	
+			return patient.save(function (err) {
+			  if (!err) {
+				console.log("updated");
+			  } else {
+				console.log(err);
+			  }
+			  res.json(patient);
+			});
+		});
+	});
+	// delete single patient 
+	router.delete('/patients/:id', function (req, res){
+		Patient.findOneAndRemove({_id : new mongoose.mongo.ObjectID(req.params.id)},function(err){
+		//DOES NOT WORK
+		//Post.remove({ id: req.params.id }, function(err) {	
+		//Post.findByIdAndRemove(req.params.id, function (err) {
+			if (!err) {
+				return res.send('Patient deleted!');
+			} else {
+				return res.send('Error deleting patient!');
+			}
+		});
+	});
+	
 	// get posts
 	router.get('/posts', function(req, res, next) {
 	  Post.find(function(err, posts){
