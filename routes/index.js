@@ -44,11 +44,9 @@
 		return next();
 	  });
 	});
+	
 	router.get('/patients/:patient', function(req, res, next) {
-	  //req.patient.populate('comments', function(err, post) {
-	  //if (err) { return next(err); }
-		res.json(patient);
-	  //});
+		res.json(req.patient);
 	});
 	
 	// update single patient 

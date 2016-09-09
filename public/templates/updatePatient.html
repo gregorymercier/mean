@@ -1,0 +1,28 @@
+	<div class="page-header">
+		<h1>
+			Détails de patient
+		</h1>
+	</div>
+	<form style="margin-top:30px;">
+	 	<div class="form-group">
+			<input type="text"
+				class="form-control"
+				placeholder="Nom"
+				ng-model="patient.lastname"
+				id="lastname">
+			</input>
+        </div>
+        <div class="form-group">
+          <input type="text"
+          class="form-control"
+		  placeholder="Prénom"
+          ng-model="patient.firstname"
+		  id="firstname"></input>
+        </div>
+		<a href="#/home"><button class="btn btn-primary">Annuler</button></a>
+        
+		<button ng-click="deletePatient(patient)" class="btn btn-danger">Supprimer</button>
+		<button ng-click="updatePatient(patient)" class="btn btn-primary pull-right">Sauvegarder</button>
+		
+	</form>
+	
