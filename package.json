@@ -3,13 +3,14 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+	"start": "node ./bin/www"
   },
   "dependencies": {
     "angular-growl-v2": "^0.7.5",
     "angular-modal-service": "^0.10.1",
     "angular-utils-pagination": "^0.11.1",
     "body-parser": "~1.15.1",
+    "bower": "^1.7.9",
     "cookie-parser": "~1.4.3",
     "debug": "~2.2.0",
     "ejs": "~2.4.1",
