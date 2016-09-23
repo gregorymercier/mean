@@ -1,0 +1,20 @@
+{
+  "name": "flapper",
+  "description": "",
+  "main": "",
+  "authors": [
+    "gregorymercier <mercierg@gmai.com>"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/gregorymercier/mean",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "ng-foobar": "^0.1.0"
+  }
+}

@@ -1,17 +1,21 @@
 	var mongoose = require('mongoose');
 	var express = require('express');
 	var router = express.Router();
-
+	var Busboy = require('busboy'); // 0.2.9
+	
+	var Grid = require('gridfs-stream');
+	Grid.mongo = mongoose.mongo;
+	var gfs = new Grid(mongoose.connection.db);
+	
 	var Post = mongoose.model('Post');
 	var Comment = mongoose.model('Comment');
 	var Patient = mongoose.model('Patient');
-
+	var PatientFile = mongoose.model('PatientFile');
 	
 	// GET home page. 
 	router.get('/', function(req, res, next) {
 	  res.render('index', { title: 'Express' });
 	});
-
 	//-----------------------------//
 	//------- Patient -------------//
 	//-----------------------------//
@@ -79,9 +83,103 @@
 			}
 		});
 	});
+	/////////////////////////////
+	// images //
+	/////////////////////////////
+	router.post('/file', function(req, res) {
+		var part = req.files.file;
+		var fileId = new mongoose.mongo.ObjectID();
+		var writeStream = gfs.createWriteStream({
+							_id: fileId,
+							filename: part.name,
+							mode: 'w',
+							content_type:part.mimetype
+						});
 	
+ 		writeStream.on('close', function() {
+			return res.status(200).send({
+				message: 'Success '+ fileId//part.name
+			});
+        });
+        writeStream.write(part.data);
+		writeStream.end();
+	});
+	router.post('/patients/:patient/upload', function(req, res, next) {
+		var part = req.files.file;
+		var fileId = new mongoose.mongo.ObjectID();
+		var writeStream = gfs.createWriteStream({
+							_id: fileId,
+							filename: part.name,
+							mode: 'w',
+							content_type:part.mimetype
+						});
+	
+ 		writeStream.on('close', function() {
+			//return res.status(200).send({
+			//	message: 'Success '+ fileId//part.name
+			//});
+        });
+        writeStream.write(part.data);
+		writeStream.end();
+		var patientFile = new PatientFile({ fileid: fileId });
+		patientFile.patient = req.patient;
+		console.log(fileId);
+	/*
+	  comment.save(function(err, comment){
+		if(err){ return next(err); }
+
+		req.post.comments.push(comment);
+		req.post.save(function(err, post) {
+		  if(err){ return next(err); }
+
+		  res.json(comment);
+		});
+	  });*/
+	});
+	//http://stackoverflow.com/questions/31176395/node-js-upload-and-download-pdf-file
+	router.get('/file/:id', function(req, res) {
+		//gfs.files.find({ filename: req.params.id }).toArray(function (err, files) {
+		gfs.files.find({ _id: new mongoose.mongo.ObjectID(req.params.id)}).toArray(function (err, files) {
+			if(files.length===0){
+				return res.status(400).send({
+					message: 'File not found'
+				});
+			}
+			res.writeHead(200, {'Content-Type': files[0].contentType});
+			var readstream = gfs.createReadStream({
+				filename: files[0].filename
+			});
+			readstream.on('data', function(data) {
+				res.write(data);
+			});
+			readstream.on('end', function() {
+				res.end();        
+			});
+			readstream.on('error', function (err) {
+			  console.log('An error occurred!', err);
+			  throw err;
+			});
+		});
+	});
+	router.delete('/file/:id', function(req, res) {
+		gfs.remove({ _id: new mongoose.mongo.ObjectID(req.params.id)}, function (err) {
+			if (err) return handleError(err);
+			console.log('success');
+		});
+	});
+	//http://stackoverflow.com/questions/32073183/mongodb-populate-gridfs-files-metadata-in-parent-document
+	router.get('/file', function(req, res) {
+	  /*gfs.files.find(function(err, files){
+		if(err){ return next(err); }
+		res.json(files);
+	  });*/
+	  console.log('list files');
+	});
+
+	///////////////////////////////////////
+	///////////////////////////////////////
 	// get posts
-	router.get('/posts', function(req, res, next) {
+	/*router.get('/posts', function(req, res, next) {
 	  Post.find(function(err, posts){
 		if(err){ return next(err); }
 
@@ -174,7 +272,7 @@
 		  res.json(comment);
 		});
 	  });
-	});
+	});*/
 
 	/*router.get('/posts/:post/comments', function(req, res, next) {
 	  Post.find(function(err, posts){
@@ -184,7 +282,7 @@
 	  });
 	});*/
 
-	router.param('comment', function(req, res, next, id) {
+	/*router.param('comment', function(req, res, next, id) {
 	  var query = Comment.findById(id);
 
 	  query.exec(function (err, comment){
@@ -203,5 +301,5 @@
 		res.json(comment);
 	  });
 	});
-
+*/
 	module.exports = router;

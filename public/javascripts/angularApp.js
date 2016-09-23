@@ -1,4 +1,4 @@
-var app = angular.module('flapperNews', ['ui.router','angularUtils.directives.dirPagination','angularModalService','angular-growl']);
+var app = angular.module('flapperNews', ['ui.router','angularUtils.directives.dirPagination','angular-growl','ui-notification','ngMessages','angularFileUpload']);//,'ngAnimate', 'toastr']);
 
 app.factory('patients', ['$http','growl', function($http,growl){
   var o = {
@@ -21,8 +21,8 @@ app.factory('patients', ['$http','growl', function($http,growl){
 	o.create = function(patient) {
 		return $http.post('/patients', patient).success(function(data){
 			o.patients.push(data);
-			window.location='#/home';
-			growl.success("Patient créé ");
+			//window.location='#/home';
+			//growl.success("Patient créé ");
 		});
 	};
   
@@ -59,7 +59,36 @@ app.factory('patients', ['$http','growl', function($http,growl){
 
   return o;
 }]);	
-
+//Notify message
+app.factory('AlertService', function () {
+  var success = {},
+      error = {},
+      alert = false;
+  return {
+    getSuccess: function () {
+      return success;
+    },
+    setSuccess: function (value) {
+      success = value;
+      alert = true;
+    },
+    getError: function () {
+      return error;
+    },
+    setError: function (value) {
+      error = value;
+      alert = true;
+    },
+    reset: function () {
+      success = {};
+      error = {};
+      alert = false;
+    },
+    hasAlert: function () {
+      return alert;
+    }
+  }
+});
 
 
 
@@ -95,6 +124,10 @@ function($stateProvider, $urlRouterProvider) {
 		  }
 		  
 	})
+	.state('file', {
+		url: '/file',
+		templateUrl: 'templates/file.html',
+	})
 	;
 
   $urlRouterProvider.otherwise('home');
@@ -103,15 +136,28 @@ function($stateProvider, $urlRouterProvider) {
 app.config(['growlProvider', function (growlProvider) {
   growlProvider.globalTimeToLive(3000);
 }]);
+app.config(function(NotificationProvider) {
+        NotificationProvider.setOptions({
+            delay: 10000,
+            startTop: 20,
+            startRight: 10,
+            verticalSpacing: 20,
+            horizontalSpacing: 20,
+            positionX: 'left',
+            positionY: 'bottom'
+        });
+    });
 
 
 
 // homepage - display all patients
 app.controller('MainCtrl', [
 '$scope',
+
 '$filter',
 'patients',
-function($scope, $filter, patients){
+'AlertService',
+function($scope,$filter, patients,AlertService){
 	$scope.patients = $filter('filter')(patients.patients, $scope.query);
 	//Add sort functionnality
 	$scope.sort = function(keyname){
@@ -121,20 +167,39 @@ function($scope, $filter, patients){
 	//Default items per Page
 	$scope.sort('lastname');
 	$scope.pageSize = 10;
+	$scope.success = AlertService.getSuccess();
+	
 }]);
 // Patient Form
 app.controller('createPatientCtrl', [
 	'$scope',
-	'patients',
-	function($scope, patients){	
+	'$location',
+	'$state'	,
+	'$timeout',
+	'patients',	
+	'AlertService',
+	function($scope, $location,$state, $timeout,patients,AlertService){	
 		$scope.createPatient = function(){
 			if(!$scope.lastname || $scope.firstname === '') { return; }
 			patients.create({
 				lastname: $scope.lastname,
 				firstname: $scope.firstname
 			});
-			window.location='#/home';
-			growl.success("Patient créé ");
+			console.log("patient créé");
+			//AlertService.setSuccess({ show: true, msg: $scope.lastname + ' has been updated successfully.' });
+			//$location.path("#/home");
+			$state.go('home');
+			$scope.alert = {
+				type: 'success',
+				message: 'patient créé'
+			};
+			$timeout(function() {
+				$scope.alert = undefined;
+ 
+			}, 3000);
+			//window.location='#/home';
+			//growl.success("Patient créé ");
+			//Notification.success('Success notification');
 		};
 		
 	}
@@ -145,9 +210,12 @@ app.controller('updatePatientCtrl', [
 	'$stateParams',
 	'patients',
 	'patient',
-	
-	function($scope, $state, $stateParams, patients,patient){	
+	//'toastr',
+	'$timeout',
+	'$upload',
+	function($scope, $state, $stateParams, patients,patient,$timeout,$upload){//,toastr){	
 		$scope.patient = patient;
+		
 		//DOESNT WORK
 		//$scope.post = posts.get($stateParams.id);
 		$scope.updatePatient=function(patient){
@@ -166,7 +234,73 @@ app.controller('updatePatientCtrl', [
 			console.log($stateParams.id);
 			patients.delete(patient);
 			$state.go('home');
+		};
+		$scope.uploadFile=function(patient){
+			console.log("Upload File for Patient "+$stateParams.id);
+			//patients.delete(patient);
+			//$state.go('home');
+		};
+		$scope.onFileSelect = function ($files) {
+			$scope.selectedFiles = [];
+			$scope.progress = [];
+			if ($scope.upload && $scope.upload.length > 0) {
+				for (var i = 0; i < $scope.upload.length; i++) {
+					if ($scope.upload[i] != null) {
+						$scope.upload[i].abort();
+					}
+				}
+			}
+			$scope.upload = [];
+			$scope.uploadResult = [];
+			$scope.selectedFiles = $files;
+			$scope.dataUrls = [];
+			for (var i = 0; i < $files.length; i++) {
+				var $file = $files[i];
+				if (window.FileReader && $file.type.indexOf('image') > -1) {
+					var fileReader = new FileReader();
+					fileReader.readAsDataURL($files[i]);
+					function setPreview(fileReader, index) {
+						fileReader.onload = function (e) {
+							$timeout(function () {
+								$scope.dataUrls[index] = e.target.result;
+							});
+						}
+					}
+
+					setPreview(fileReader, i);
+				}
+				$scope.progress[i] = -1;
+				//if ($scope.uploadRightAway) {
+				//	$scope.start(i);
+				//}
+			}
+			//console.log('end onFileSelect');
 		}
+		$scope.start = function (index) {
+			$scope.progress[index] = 0;
+			console.log('starting...');
+			//console.log($scope.myModel);
+			console.log($scope.selectedFiles[index]);
+			$scope.upload[index] = $upload.upload({
+				url: 'upload',
+				headers: {'myHeaderKey': 'myHeaderVal'},
+				data: {
+					title: 'title',
+					author: 'mg',
+					description: 'desc'
+				},
+				file: $scope.selectedFiles[index],
+				fileFormDataName: 'myFile'
+			}).then(function (response) {
+				console.log('response', response.data);
+				$scope.item=response.data;
+				$scope.uploadResult.push(response.data.result);
+			}, null, function (evt) {
+				$scope.progress[index] = parseInt(100.0 * evt.loaded / evt.total);
+			});
+			
+		}
+		
 		
 	}	
 ]);

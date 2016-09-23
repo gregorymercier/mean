@@ -3,6 +3,7 @@ var mongoose = require('mongoose');
 require('./models/Posts');
 require('./models/Comments');
 require('./models/Patients');
+require('./models/PatientsFiles');
 
 mongoose.connect('mongodb://localhost/news');
 
@@ -12,7 +13,22 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var busboyBodyParser = require('busboy-body-parser');
+var fs = require('fs');
+//-- File Upload
+var Busboy = require('busboy'); // 0.2.9
+//var mongo = require('mongodb'); // 2.0.31
+var Grid = require('gridfs-stream');
+Grid.mongo = mongoose.mongo;
+var gfs = new Grid(mongoose.connection.db);
+/*
+db.open(function(err, db) {
+  if (err) throw err;
+  gfs = Grid(db, mongo);
+});
+*/
 
+//-- End File Upload
 var routes = require('./routes/index');
 var users = require('./routes/users');
 
@@ -29,6 +45,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(busboyBodyParser());
 
 app.use('/', routes);
 app.use('/users', users);

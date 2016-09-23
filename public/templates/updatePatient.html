@@ -25,4 +25,49 @@
 		<button ng-click="updatePatient(patient)" class="btn btn-primary pull-right">Sauvegarder</button>
 		
 	</form>
-	
+	<form action="/file" enctype="multipart/form-data" method="post">
+    <input type="file" name="file"><br>
+    <input type="submit" value="Upload">
+    </form>
+	<!--
+	<input type=”file” nv-file-select uploader=”uploader” <!--options=”uploadOptions” />
+	<button ng-click="uploadFile(patient)">Charger Fichier</button>
+	-->
+	<!--
+	<form action="http://localhost/upload" method="post" enctype="multipart/form-data">
+	-->
+	<!--
+	<input type="file" ng-file-select="onFileSelect($files)" multiple>
+	<div ng-show="selectedFiles != null">
+        <div class="sel-file" ng-repeat="f in selectedFiles">
+            <img ng-show="dataUrls[$index]" ng-src="{{dataUrls[$index]}}">
+            <button class="button" ng-click="start($index)" ng-show="progress[$index] < 0">Start</button>
+				<span class="progress" ng-show="progress[$index] >= 0">
+					<div style="width:{{progress[$index]}}%">{{progress[$index]}}%</div>
+				</span>
+            <button class="button" ng-click="abort($index)" ng-show="hasUploader($index) && progress[$index] < 100">
+                Abort
+            </button>
+            {{f.name}} - size: {{f.size}}B - type: {{f.type}}
+        </div>
+    </div>
+	<div class="response" ng-show="uploadResult.length > 0">
+        Server Response:
+        <ul>
+            <li ng-repeat="result in uploadResult">
+                <ul>
+                    <li ng-repeat="item in result">
+                        <div data-ng-show="item.name">file name: {{item.name}}</div>
+                        <div data-ng-show="item.fieldName">name: {{item.fieldName}}</div>
+                        <div data-ng-show="item.size">size on the serve: {{item.size}}</div>
+                        <div data-ng-show="item.value">value: {{item.value}}</div>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+	-->
+	<!--
+	<input type="file" name="filefield">
+	<button ng-click="uploadFile(patient)" class="btn btn-primary pull-right">Charger fichier</button>
+	-->
