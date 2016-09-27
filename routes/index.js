@@ -86,7 +86,11 @@
 	/////////////////////////////
 	// images //
 	/////////////////////////////
+	router.post('/upload',function(req, res) {
+		console.log('in router');
+	});
 	router.post('/file', function(req, res) {
+		console.log('/file');
 		var part = req.files.file;
 		var fileId = new mongoose.mongo.ObjectID();
 		var writeStream = gfs.createWriteStream({
@@ -97,16 +101,30 @@
 						});
 	
  		writeStream.on('close', function() {
+			console.log(fileId);
 			return res.status(200).send({
 				message: 'Success '+ fileId//part.name
 			});
         });
         writeStream.write(part.data);
 		writeStream.end();
+		console.log(fileId);
 	});
-	router.post('/patients/:patient/upload', function(req, res, next) {
-		var part = req.files.file;
+	router.post('/patients/:id/upload', function(req, res, next) {
+		var patientFile = new PatientFile({patient : req.params.id});
+		patientFile.patient = req.params.id;
+
+		/*patientFile.save(function(err, patientFile){
+			if(err){ return next(err); }
+			req.post.patients.push(patientFile);
+			req.post.save(function(err, post) {
+				if(err){ return next(err); }
+				res.json(patientFile);
+			});
+	  });*/
 		var fileId = new mongoose.mongo.ObjectID();
+		console.log(fileId);
+		/*var part = req.files.file;
 		var writeStream = gfs.createWriteStream({
 							_id: fileId,
 							filename: part.name,
@@ -123,7 +141,13 @@
 		writeStream.end();
 		var patientFile = new PatientFile({ fileid: fileId });
 		patientFile.patient = req.patient;
-		console.log(fileId);
+		*/
+		/*console.log(fileId);
+		if (!err) {
+			return res.send('File uploaded.');
+		} else {
+			return res.send('Upload failed.');
+		}*/
 	/*
 	  comment.save(function(err, comment){
 		if(err){ return next(err); }

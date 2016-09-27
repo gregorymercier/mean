@@ -53,12 +53,61 @@ app.factory('patients', ['$http','growl', function($http,growl){
 			.error(function(data){
 				console.log("error "+data);
 			});
-	}
-	
+	};
+	//upload file to patient
+	o.uploadFile = function(patient, file) {
+		var formData = new FormData();
+		formData.append('file', file);
+		console.log("FormData Constructor "+formData);
+		return $http.post(
+			'file', 
+			formData, 
+			{transformRequest: angular.identity,
+			headers: {'Content-Type': undefined}
+		}).success(function (data) {
+		   console.log("upload done");
+		}).error (function(data){
+			console.log("upload failed");
+		});
+		//return $http.post('/patients/' + id + '/upload');
+		//return $http.post('/file');
+	};
 	
 
   return o;
 }]);	
+
+app.directive('fileModel', ['$parse', function ($parse) {
+    return {
+        restrict: 'A',
+        link: function(scope, element, attrs) {
+            var model = $parse(attrs.fileModel);
+            var modelSetter = model.assign;
+            
+            element.bind('change', function(){
+                scope.$apply(function(){
+                    modelSetter(scope, element[0].files[0]);
+                });
+            });
+        }
+    };
+}]);
+app.service('fileUpload', ['$http', function ($http) {
+    this.uploadFileToUrl = function(file, uploadUrl){
+        var fd = new FormData();
+        fd.append('file', file);
+        $http.post(uploadUrl, fd, {
+            transformRequest: angular.identity,
+            headers: {'Content-Type': undefined}
+        })
+        .success(function(){
+			console.log("upload done");
+        })
+        .error(function(){
+			console.log("upload done");
+        });
+    }
+}]);
 //Notify message
 app.factory('AlertService', function () {
   var success = {},
@@ -212,8 +261,10 @@ app.controller('updatePatientCtrl', [
 	'patient',
 	//'toastr',
 	'$timeout',
-	'$upload',
-	function($scope, $state, $stateParams, patients,patient,$timeout,$upload){//,toastr){	
+	/*'$upload',
+	'fileUpload',
+	*/'FileUploader',
+	function($scope, $state, $stateParams, patients,patient,$timeout,/*$upload,fileUpload,*/FileUploader){//,toastr){	
 		$scope.patient = patient;
 		
 		//DOESNT WORK
@@ -236,11 +287,32 @@ app.controller('updatePatientCtrl', [
 			$state.go('home');
 		};
 		$scope.uploadFile=function(patient){
-			console.log("Upload File for Patient "+$stateParams.id);
+			//patients.uploadFile(patient._id,$scope.file);//,$files);
+			var file = $scope.file;
+			console.log('file is ' );
+			console.log(file);
+			var uploadUrl = "/file";
+			fileUpload.uploadFileToUrl(file, uploadUrl);
+			
+			//console.log("Upload File for Patient "+patient._id);
 			//patients.delete(patient);
 			//$state.go('home');
 		};
-		$scope.onFileSelect = function ($files) {
+		$scope.uploader = new FileUploader();
+		var uploadURL = '/upload';//'api/upload/’ + currentUser._id
+		$scope.uploadOptions = {
+			queueLimit: 1,
+			autoUpload: true,
+			url: uploadURL
+		}
+ 
+		$scope.uploadFile2 = function(){
+			if (!$scope.uploader.queue[0]) return;
+			$scope.uploader.queue[0].upload(); 
+			console.log('Upload File');
+		}
+		
+		/*$scope.onFileSelect = function ($files) {
 			$scope.selectedFiles = [];
 			$scope.progress = [];
 			if ($scope.upload && $scope.upload.length > 0) {
@@ -300,7 +372,7 @@ app.controller('updatePatientCtrl', [
 			});
 			
 		}
-		
+		*/
 		
 	}	
 ]);

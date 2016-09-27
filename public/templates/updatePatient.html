@@ -25,10 +25,27 @@
 		<button ng-click="updatePatient(patient)" class="btn btn-primary pull-right">Sauvegarder</button>
 		
 	</form>
+	<!--// WORKS-->
+	WORKS
 	<form action="/file" enctype="multipart/form-data" method="post">
-    <input type="file" name="file"><br>
-    <input type="submit" value="Upload">
+		<input type="file" name="file"><br>
+		<input type="submit" value="Upload OK">
+	</form>
+	
+	NOT WORK
+		<input type="file" name="file"><br>
+		<button ng-click="uploadFile(patient)" class="btn btn-primary">Upload New</button>
+		
+	NOT WORK2
+<input type="file" nv-file-select uploader="uploader" options="uploadOptions"/>
+<button ng-click="uploadFile2()">Submit</button>	
+	<!-- 
+	<form enctype="multipart/form-data" method="post">
+		<input type="file" name="file">
+		<button ng-click="uploadFile(patient)" class="btn btn-primary pull-right">Télécharger</button>
     </form>
+	-->
+	
 	<!--
 	<input type=”file” nv-file-select uploader=”uploader” <!--options=”uploadOptions” />
 	<button ng-click="uploadFile(patient)">Charger Fichier</button>
