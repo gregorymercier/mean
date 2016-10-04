@@ -86,8 +86,36 @@
 	/////////////////////////////
 	// images //
 	/////////////////////////////
-	router.post('/upload',function(req, res) {
-		console.log('in router');
+	router.post('/upload/:id',function(req, res) {
+		console.log('in router /upload/'+req.params.id);
+		var part = req.files.file;
+		var fileId = new mongoose.mongo.ObjectID();
+		var writeStream = gfs.createWriteStream({
+							_id: fileId,
+							filename: part.name,
+							mode: 'w',
+							content_type:part.mimetype
+						});
+		writeStream.on('close', function() {
+			console.log('Download successfully : '+fileId);
+			Patient.findById(req.params.id, function(err, patient) {
+				// handle error
+				patient.files.push(fileId);// = file._id;
+				return patient.save(function (err) {
+				  if (!err) {
+					console.log("updated");
+				  } else {
+					console.log(err);
+				  }
+				  res.json(patient);
+				});
+				/*return res.status(200).send({
+				message: 'Success '+ fileId//part.name
+			});*/
+			});
+        });
+        writeStream.write(part.data);
+		writeStream.end();
 	});
 	router.post('/file', function(req, res) {
 		console.log('/file');
@@ -97,7 +125,8 @@
 							_id: fileId,
 							filename: part.name,
 							mode: 'w',
-							content_type:part.mimetype
+							content_type:part.mimetype,
+							
 						});
 	
  		writeStream.on('close', function() {

@@ -286,7 +286,7 @@ app.controller('updatePatientCtrl', [
 			patients.delete(patient);
 			$state.go('home');
 		};
-		$scope.uploadFile=function(patient){
+		/*$scope.uploadFile=function(patient){
 			//patients.uploadFile(patient._id,$scope.file);//,$files);
 			var file = $scope.file;
 			console.log('file is ' );
@@ -297,16 +297,17 @@ app.controller('updatePatientCtrl', [
 			//console.log("Upload File for Patient "+patient._id);
 			//patients.delete(patient);
 			//$state.go('home');
-		};
+		};*/
 		$scope.uploader = new FileUploader();
-		var uploadURL = '/upload';//'api/upload/’ + currentUser._id
+		var uploadURL = '/upload/'+patient._id;//'api/upload/’ + currentUser._id
+		console.log(uploadURL);
 		$scope.uploadOptions = {
 			queueLimit: 1,
 			autoUpload: true,
 			url: uploadURL
 		}
  
-		$scope.uploadFile2 = function(){
+		$scope.uploadFile = function(){
 			if (!$scope.uploader.queue[0]) return;
 			$scope.uploader.queue[0].upload(); 
 			console.log('Upload File');
