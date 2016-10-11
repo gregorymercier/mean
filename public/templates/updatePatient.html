@@ -38,12 +38,21 @@
 		
 	NOT WORK2
 	-->
-<input type="file" nv-file-select uploader="uploader" options="uploadOptions"/>
-<button ng-click="uploadFile()">Submit</button>	
+	<h1>
+		Fichiers
+	</h1>
+	<form class="form-inline">
+		<div class="form-group">
+		<input type="file" nv-file-select uploader="uploader" class="form-control" options="uploadOptions" data-show-preview="false"/>
+		</div>
+		<button ng-click="uploadFile()" class="btn btn-primary">Ajouter</button>	
+	</form>
+	
 
 	 <div ng-repeat="file in patient.file">	
 		<span style="font-size:20px; margin-left:10px;">
 		<a href="/file/{{file.fileid}}">{{file.filename}}</a></span>
+		<a href ng-click="deleteFile()" title="Supprimer le fichier"><span class="glyphicon glyphicon-trash"></span></a>
 	 </div>
 	<!-- 
 	<form enctype="multipart/form-data" method="post">

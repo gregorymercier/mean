@@ -72,7 +72,15 @@ app.factory('patients', ['$http','growl', function($http,growl){
 		//return $http.post('/patients/' + id + '/upload');
 		//return $http.post('/file');
 	};
-	
+    o.deleteFile = function(file){
+		return $http.delete('/file/'+ file._id)
+			.success(function(data){
+				console.log("file deleted");
+			})
+			.error(function(data){
+				console.log("error "+data);
+			});
+	}	
 
   return o;
 }]);	
@@ -298,6 +306,10 @@ app.controller('updatePatientCtrl', [
 			if (!$scope.uploader.queue[0]) return;
 			$scope.uploader.queue[0].upload(); 
 			console.log('Upload File');
-		}	
+			//$state.go('updatePatient');
+		}
+		$scope.deleteFile = function(){
+			alert('delete file');
+		}		
 	}	
 ]);

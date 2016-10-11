@@ -97,6 +97,7 @@
 	/////////////////////////////
 	// images //
 	/////////////////////////////
+	//add file for the input patient id
 	router.post('/upload/:id',function(req, res) {
 		console.log('in router /upload/'+req.params.id);
 		var part = req.files.file;
@@ -135,7 +136,7 @@
 	//http://stackoverflow.com/questions/31176395/node-js-upload-and-download-pdf-file
 	router.get('/file/:id', function(req, res) {
 		//gfs.files.find({ filename: req.params.id }).toArray(function (err, files) {
-		gfs.files.find({ _id: new mongoose.mongo.ObjectID(req.params.id)}).toArray(function (err, files) {
+		/*gfs.files.find({ _id: new mongoose.mongo.ObjectID(req.params.id)}).toArray(function (err, files) {
 			if(files.length===0){
 				return res.status(400).send({
 					message: 'File not found'
@@ -155,6 +156,24 @@
 			  console.log('An error occurred!', err);
 			  throw err;
 			});
+		});*/
+		var file_id = req.params.id;
+		gfs.files.find({_id: new mongoose.mongo.ObjectID(file_id)}).toArray(function (err, files) {
+			if (err) {
+				res.json(err);
+			}
+			if (files.length > 0) {
+				var mime = files[0].contentType;
+				var filename = files[0].filename;
+				console.log(filename);
+				res.set('Content-Type', mime);
+				//res.set('originalname', filename);
+				res.set('Content-Disposition', "inline; filename=" + filename);
+				var read_stream = gfs.createReadStream({_id: file_id});
+				read_stream.pipe(res);
+			} else {
+			  res.json('File Not Found');
+			}
 		});
 	});
 	router.delete('/file/:id', function(req, res) {
