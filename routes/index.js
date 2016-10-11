@@ -10,7 +10,13 @@
 	var Post = mongoose.model('Post');
 	var Comment = mongoose.model('Comment');
 	var Patient = mongoose.model('Patient');
-	var PatientFile = mongoose.model('PatientFile');
+	//define Model for metadata collection.
+	//Schema = mongoose.Schema;
+	//var gridSchema = new Schema({},{ strict: false });
+	//var Grid = mongoose.model("Grid", gridSchema, "fs.files" );
+	var Schema = mongoose.Schema;
+	const FileSchema = new Schema({}, { strict: false }, 'fs.files');
+	var File = mongoose.model('File', FileSchema);
 	
 	// GET home page. 
 	router.get('/', function(req, res, next) {
@@ -19,9 +25,10 @@
 	//-----------------------------//
 	//------- Patient -------------//
 	//-----------------------------//
-	// get patients
+	// get all patients
 	router.get('/patients', function(req, res, next) {
 	  Patient.find(function(err, patients){
+		  
 		if(err){ return next(err); }
 
 		res.json(patients);
@@ -48,8 +55,12 @@
 		return next();
 	  });
 	});
-	
+	// get single patient
 	router.get('/patients/:patient', function(req, res, next) {
+		/*req.patient.populate('files', function(err, patient) {
+		if (err) { return next(err); }
+			res.json(req.patient);
+		});*/
 		res.json(req.patient);
 	});
 	
@@ -98,9 +109,13 @@
 						});
 		writeStream.on('close', function() {
 			console.log('Download successfully : '+fileId);
+			console.log('File name : '+part.name);
+			console.log('File ID : '+fileId);
 			Patient.findById(req.params.id, function(err, patient) {
 				// handle error
-				patient.files.push(fileId);// = file._id;
+				
+				patient.file.push({'fileid': fileId,'filename' : part.name});// = file._id;
+				//patient.files.filename.push('demo');// = file._id;
 				return patient.save(function (err) {
 				  if (!err) {
 					console.log("updated");
@@ -116,78 +131,6 @@
         });
         writeStream.write(part.data);
 		writeStream.end();
-	});
-	router.post('/file', function(req, res) {
-		console.log('/file');
-		var part = req.files.file;
-		var fileId = new mongoose.mongo.ObjectID();
-		var writeStream = gfs.createWriteStream({
-							_id: fileId,
-							filename: part.name,
-							mode: 'w',
-							content_type:part.mimetype,
-							
-						});
-	
- 		writeStream.on('close', function() {
-			console.log(fileId);
-			return res.status(200).send({
-				message: 'Success '+ fileId//part.name
-			});
-        });
-        writeStream.write(part.data);
-		writeStream.end();
-		console.log(fileId);
-	});
-	router.post('/patients/:id/upload', function(req, res, next) {
-		var patientFile = new PatientFile({patient : req.params.id});
-		patientFile.patient = req.params.id;
-
-		/*patientFile.save(function(err, patientFile){
-			if(err){ return next(err); }
-			req.post.patients.push(patientFile);
-			req.post.save(function(err, post) {
-				if(err){ return next(err); }
-				res.json(patientFile);
-			});
-	  });*/
-		var fileId = new mongoose.mongo.ObjectID();
-		console.log(fileId);
-		/*var part = req.files.file;
-		var writeStream = gfs.createWriteStream({
-							_id: fileId,
-							filename: part.name,
-							mode: 'w',
-							content_type:part.mimetype
-						});
-	
- 		writeStream.on('close', function() {
-			//return res.status(200).send({
-			//	message: 'Success '+ fileId//part.name
-			//});
-        });
-        writeStream.write(part.data);
-		writeStream.end();
-		var patientFile = new PatientFile({ fileid: fileId });
-		patientFile.patient = req.patient;
-		*/
-		/*console.log(fileId);
-		if (!err) {
-			return res.send('File uploaded.');
-		} else {
-			return res.send('Upload failed.');
-		}*/
-	/*
-	  comment.save(function(err, comment){
-		if(err){ return next(err); }
-
-		req.post.comments.push(comment);
-		req.post.save(function(err, post) {
-		  if(err){ return next(err); }
-
-		  res.json(comment);
-		});
-	  });*/
 	});
 	//http://stackoverflow.com/questions/31176395/node-js-upload-and-download-pdf-file
 	router.get('/file/:id', function(req, res) {
@@ -215,18 +158,45 @@
 		});
 	});
 	router.delete('/file/:id', function(req, res) {
+		//patient.files.push(fileId);
 		gfs.remove({ _id: new mongoose.mongo.ObjectID(req.params.id)}, function (err) {
 			if (err) return handleError(err);
 			console.log('success');
 		});
 	});
+	router.delete('/patients/:patient/file/:id', function(req, res) {
+		console.log('Patient : '+req.patient._id);
+		console.log('File : '+req.params.id);
+		req.patient.files.remove(req.params.id);
+		return req.patient.save(function (err) {
+				  if (!err) {
+					console.log("updated");
+				  } else {
+					console.log(err);
+				  }
+				  res.json(req.patient);
+				});
+		gfs.remove({ _id: new mongoose.mongo.ObjectID(req.params.id)}, function (err) {
+			if (err) return handleError(err);
+			console.log('success');
+		});
+	});
+	
 	//http://stackoverflow.com/questions/32073183/mongodb-populate-gridfs-files-metadata-in-parent-document
 	router.get('/file', function(req, res) {
-	  /*gfs.files.find(function(err, files){
+	/*  gfs.files.find(function(err, files){
 		if(err){ return next(err); }
 		res.json(files);
 	  });*/
-	  console.log('list files');
+		gfs.files.find().toArray(function (err, files) {
+			if (err) throw err;
+			console.log(files);
+		})
+		/*Grid.find({},function(err,gridfiles) {
+			if (err) throw err;
+			console.log( gridfiles );
+		});*/
+		console.log('list files');
 	});
 
 	///////////////////////////////////////
@@ -289,20 +259,7 @@
 			});
 		});
 	});
-	// delete single post 
-	router.delete('/posts/:id', function (req, res){
-		Post.findOneAndRemove({_id : new mongoose.mongo.ObjectID(req.params.id)},function(err){
-		//DOES NOT WORK
-		//Post.remove({ id: req.params.id }, function(err) {	
-		//Post.findByIdAndRemove(req.params.id, function (err) {
-			if (!err) {
-				return res.send('Post deleted!');
-			} else {
-				return res.send('Error deleting post!');
-			}
-		});
-	});
-	
+		
 	router.put('/posts/:post/upvote', function(req, res, next) {
 	  req.post.upvote(function(err, post){
 		if (err) { return next(err); }

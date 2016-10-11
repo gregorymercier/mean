@@ -40,6 +40,11 @@
 	-->
 <input type="file" nv-file-select uploader="uploader" options="uploadOptions"/>
 <button ng-click="uploadFile()">Submit</button>	
+
+	 <div ng-repeat="file in patient.file">	
+		<span style="font-size:20px; margin-left:10px;">
+		<a href="/file/{{file.fileid}}">{{file.filename}}</a></span>
+	 </div>
 	<!-- 
 	<form enctype="multipart/form-data" method="post">
 		<input type="file" name="file">

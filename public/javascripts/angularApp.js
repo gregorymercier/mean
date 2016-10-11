@@ -261,10 +261,8 @@ app.controller('updatePatientCtrl', [
 	'patient',
 	//'toastr',
 	'$timeout',
-	/*'$upload',
-	'fileUpload',
-	*/'FileUploader',
-	function($scope, $state, $stateParams, patients,patient,$timeout,/*$upload,fileUpload,*/FileUploader){//,toastr){	
+	'FileUploader',
+	function($scope, $state, $stateParams, patients,patient,$timeout,FileUploader){//,toastr){	
 		$scope.patient = patient;
 		
 		//DOESNT WORK
@@ -286,18 +284,7 @@ app.controller('updatePatientCtrl', [
 			patients.delete(patient);
 			$state.go('home');
 		};
-		/*$scope.uploadFile=function(patient){
-			//patients.uploadFile(patient._id,$scope.file);//,$files);
-			var file = $scope.file;
-			console.log('file is ' );
-			console.log(file);
-			var uploadUrl = "/file";
-			fileUpload.uploadFileToUrl(file, uploadUrl);
-			
-			//console.log("Upload File for Patient "+patient._id);
-			//patients.delete(patient);
-			//$state.go('home');
-		};*/
+		// file upload
 		$scope.uploader = new FileUploader();
 		var uploadURL = '/upload/'+patient._id;//'api/upload/’ + currentUser._id
 		console.log(uploadURL);
@@ -311,69 +298,6 @@ app.controller('updatePatientCtrl', [
 			if (!$scope.uploader.queue[0]) return;
 			$scope.uploader.queue[0].upload(); 
 			console.log('Upload File');
-		}
-		
-		/*$scope.onFileSelect = function ($files) {
-			$scope.selectedFiles = [];
-			$scope.progress = [];
-			if ($scope.upload && $scope.upload.length > 0) {
-				for (var i = 0; i < $scope.upload.length; i++) {
-					if ($scope.upload[i] != null) {
-						$scope.upload[i].abort();
-					}
-				}
-			}
-			$scope.upload = [];
-			$scope.uploadResult = [];
-			$scope.selectedFiles = $files;
-			$scope.dataUrls = [];
-			for (var i = 0; i < $files.length; i++) {
-				var $file = $files[i];
-				if (window.FileReader && $file.type.indexOf('image') > -1) {
-					var fileReader = new FileReader();
-					fileReader.readAsDataURL($files[i]);
-					function setPreview(fileReader, index) {
-						fileReader.onload = function (e) {
-							$timeout(function () {
-								$scope.dataUrls[index] = e.target.result;
-							});
-						}
-					}
-
-					setPreview(fileReader, i);
-				}
-				$scope.progress[i] = -1;
-				//if ($scope.uploadRightAway) {
-				//	$scope.start(i);
-				//}
-			}
-			//console.log('end onFileSelect');
-		}
-		$scope.start = function (index) {
-			$scope.progress[index] = 0;
-			console.log('starting...');
-			//console.log($scope.myModel);
-			console.log($scope.selectedFiles[index]);
-			$scope.upload[index] = $upload.upload({
-				url: 'upload',
-				headers: {'myHeaderKey': 'myHeaderVal'},
-				data: {
-					title: 'title',
-					author: 'mg',
-					description: 'desc'
-				},
-				file: $scope.selectedFiles[index],
-				fileFormDataName: 'myFile'
-			}).then(function (response) {
-				console.log('response', response.data);
-				$scope.item=response.data;
-				$scope.uploadResult.push(response.data.result);
-			}, null, function (evt) {
-				$scope.progress[index] = parseInt(100.0 * evt.loaded / evt.total);
-			});
-			
-		}
-		*/
-		
+		}	
 	}	
 ]);
