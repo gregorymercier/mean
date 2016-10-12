@@ -57,7 +57,7 @@
 	});
 	// get single patient
 	router.get('/patients/:patient', function(req, res, next) {
-		/*req.patient.populate('files', function(err, patient) {
+		/*req.patient.populate('file', function(err, patient) {
 		if (err) { return next(err); }
 			res.json(req.patient);
 		});*/
@@ -117,12 +117,13 @@
 				
 				patient.file.push({'fileid': fileId,'filename' : part.name});// = file._id;
 				//patient.files.filename.push('demo');// = file._id;
-				return patient.save(function (err) {
+				return patient.save(function (err,patient) {
 				  if (!err) {
 					console.log("updated");
 				  } else {
 					console.log(err);
 				  }
+				  console.log(patient);
 				  res.json(patient);
 				});
 				/*return res.status(200).send({
@@ -186,7 +187,7 @@
 	router.delete('/patients/:patient/file/:id', function(req, res) {
 		console.log('Patient : '+req.patient._id);
 		console.log('File : '+req.params.id);
-		req.patient.files.remove(req.params.id);
+		req.patient.file.remove(req.params.id);
 		return req.patient.save(function (err) {
 				  if (!err) {
 					console.log("updated");

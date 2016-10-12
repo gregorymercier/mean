@@ -72,8 +72,8 @@ app.factory('patients', ['$http','growl', function($http,growl){
 		//return $http.post('/patients/' + id + '/upload');
 		//return $http.post('/file');
 	};
-    o.deleteFile = function(file){
-		return $http.delete('/file/'+ file._id)
+    o.deleteFile = function(patient, file){
+		return $http.delete('/patients/'+patient._id+'/file/'+ file._id)
 			.success(function(data){
 				console.log("file deleted");
 			})
@@ -84,7 +84,7 @@ app.factory('patients', ['$http','growl', function($http,growl){
 
   return o;
 }]);	
-
+/*
 app.directive('fileModel', ['$parse', function ($parse) {
     return {
         restrict: 'A',
@@ -116,6 +116,7 @@ app.service('fileUpload', ['$http', function ($http) {
         });
     }
 }]);
+*/
 //Notify message
 app.factory('AlertService', function () {
   var success = {},
@@ -308,8 +309,11 @@ app.controller('updatePatientCtrl', [
 			console.log('Upload File');
 			//$state.go('updatePatient');
 		}
-		$scope.deleteFile = function(){
-			alert('delete file');
+		$scope.deleteFile = function(patient,file){
+			console.log('Prepare file deletion =>'+file.fileid);
+			patients.deleteFile(patient, file);
+			console.log('File deleted =>'+file.fileid);
+			//+patient.file.fileid);
 		}		
 	}	
 ]);

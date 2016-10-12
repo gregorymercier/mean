@@ -25,19 +25,6 @@
 		<button ng-click="updatePatient(patient)" class="btn btn-primary pull-right">Sauvegarder</button>
 		
 	</form>
-	<!--// WORKS-->
-	<!--WORKS
-	<form action="/file" enctype="multipart/form-data" method="post">
-		<input type="file" name="file"><br>
-		<input type="submit" value="Upload OK">
-	</form>
-	
-	NOT WORK
-		<input type="file" name="file"><br>
-		<button ng-click="uploadFile(patient)" class="btn btn-primary">Upload New</button>
-		
-	NOT WORK2
-	-->
 	<h1>
 		Fichiers
 	</h1>
@@ -52,7 +39,7 @@
 	 <div ng-repeat="file in patient.file">	
 		<span style="font-size:20px; margin-left:10px;">
 		<a href="/file/{{file.fileid}}">{{file.filename}}</a></span>
-		<a href ng-click="deleteFile()" title="Supprimer le fichier"><span class="glyphicon glyphicon-trash"></span></a>
+		<a href ng-click="deleteFile(patient,file)" title="Supprimer le fichier"><span class="glyphicon glyphicon-trash"></span></a>
 	 </div>
 	<!-- 
 	<form enctype="multipart/form-data" method="post">
