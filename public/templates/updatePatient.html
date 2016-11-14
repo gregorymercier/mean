@@ -30,9 +30,9 @@
 	</h1>
 	<form class="form-inline">
 		<div class="form-group">
-		<input type="file" nv-file-select uploader="uploader" class="form-control" options="uploadOptions" data-show-preview="false"/>
+		<input id="patientFileUpload" type="file" nv-file-select uploader="uploader" class="form-control" options="uploadOptions" data-show-preview="false"/>
 		</div>
-		<button ng-click="uploadFile()" class="btn btn-primary">Ajouter</button>	
+		<button ng-click="uploadFile(patient)" class="btn btn-primary">Ajouter</button>	
 	</form>
 	
 

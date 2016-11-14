@@ -61,7 +61,7 @@
 		if (err) { return next(err); }
 			res.json(req.patient);
 		});*/
-		res.json(req.patient);
+		return res.json(req.patient);
 	});
 	
 	// update single patient 
@@ -114,8 +114,9 @@
 			console.log('File ID : '+fileId);
 			Patient.findById(req.params.id, function(err, patient) {
 				// handle error
-				
-				patient.file.push({'fileid': fileId,'filename' : part.name});// = file._id;
+				//$scope.$apply(function (){
+					patient.file.push({'fileid': fileId,'filename' : part.name});// = file._id;
+				//});
 				//patient.files.filename.push('demo');// = file._id;
 				return patient.save(function (err,patient) {
 				  if (!err) {
@@ -136,28 +137,6 @@
 	});
 	//http://stackoverflow.com/questions/31176395/node-js-upload-and-download-pdf-file
 	router.get('/file/:id', function(req, res) {
-		//gfs.files.find({ filename: req.params.id }).toArray(function (err, files) {
-		/*gfs.files.find({ _id: new mongoose.mongo.ObjectID(req.params.id)}).toArray(function (err, files) {
-			if(files.length===0){
-				return res.status(400).send({
-					message: 'File not found'
-				});
-			}
-			res.writeHead(200, {'Content-Type': files[0].contentType});
-			var readstream = gfs.createReadStream({
-				filename: files[0].filename
-			});
-			readstream.on('data', function(data) {
-				res.write(data);
-			});
-			readstream.on('end', function() {
-				res.end();        
-			});
-			readstream.on('error', function (err) {
-			  console.log('An error occurred!', err);
-			  throw err;
-			});
-		});*/
 		var file_id = req.params.id;
 		gfs.files.find({_id: new mongoose.mongo.ObjectID(file_id)}).toArray(function (err, files) {
 			if (err) {
@@ -187,6 +166,12 @@
 	router.delete('/patients/:patient/file/:id', function(req, res) {
 		console.log('Patient : '+req.patient._id);
 		console.log('File : '+req.params.id);
+		//remove file from GFS mongoDB 
+		gfs.remove({ _id: new mongoose.mongo.ObjectID(req.params.id)}, function (err) {
+			if (err) return handleError(err);
+			console.log('success');
+		});
+		//remove file from patient.file array
 		req.patient.file.remove(req.params.id);
 		return req.patient.save(function (err) {
 				  if (!err) {
@@ -196,10 +181,7 @@
 				  }
 				  res.json(req.patient);
 				});
-		gfs.remove({ _id: new mongoose.mongo.ObjectID(req.params.id)}, function (err) {
-			if (err) return handleError(err);
-			console.log('success');
-		});
+		
 	});
 	
 	//http://stackoverflow.com/questions/32073183/mongodb-populate-gridfs-files-metadata-in-parent-document

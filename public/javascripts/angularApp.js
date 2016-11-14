@@ -1,6 +1,6 @@
 var app = angular.module('flapperNews', ['ui.router','angularUtils.directives.dirPagination','angular-growl','ui-notification','ngMessages','angularFileUpload']);//,'ngAnimate', 'toastr']);
 
-app.factory('patients', ['$http','growl', function($http,growl){
+app.factory('patients', ['$http','growl','$state', function($http,growl,$state){
   var o = {
     patients: []
   };
@@ -48,7 +48,7 @@ app.factory('patients', ['$http','growl', function($http,growl){
 	o.delete = function(patient){
 		return $http.delete('/patients/'+ patient._id, patient)
 			.success(function(data){
-				console.log("deleted");
+				console.log("patient deleted");
 			})
 			.error(function(data){
 				console.log("error "+data);
@@ -73,9 +73,15 @@ app.factory('patients', ['$http','growl', function($http,growl){
 		//return $http.post('/file');
 	};
     o.deleteFile = function(patient, file){
-		return $http.delete('/patients/'+patient._id+'/file/'+ file._id)
+		//console.log(patient);//return $http.delete('/patients/'+patient._id+'/file/'+ file._id)
+		return $http.delete('/patients/'+patient._id+'/file/'+ file._id, patient)
 			.success(function(data){
 				console.log("file deleted");
+				//console.log(patient);
+				//return $http.get('/patients/' + id).then(function(res){
+				//	return res.data;
+				//});
+				
 			})
 			.error(function(data){
 				console.log("error "+data);
@@ -84,39 +90,6 @@ app.factory('patients', ['$http','growl', function($http,growl){
 
   return o;
 }]);	
-/*
-app.directive('fileModel', ['$parse', function ($parse) {
-    return {
-        restrict: 'A',
-        link: function(scope, element, attrs) {
-            var model = $parse(attrs.fileModel);
-            var modelSetter = model.assign;
-            
-            element.bind('change', function(){
-                scope.$apply(function(){
-                    modelSetter(scope, element[0].files[0]);
-                });
-            });
-        }
-    };
-}]);
-app.service('fileUpload', ['$http', function ($http) {
-    this.uploadFileToUrl = function(file, uploadUrl){
-        var fd = new FormData();
-        fd.append('file', file);
-        $http.post(uploadUrl, fd, {
-            transformRequest: angular.identity,
-            headers: {'Content-Type': undefined}
-        })
-        .success(function(){
-			console.log("upload done");
-        })
-        .error(function(){
-			console.log("upload done");
-        });
-    }
-}]);
-*/
 //Notify message
 app.factory('AlertService', function () {
   var success = {},
@@ -172,9 +145,11 @@ function($stateProvider, $urlRouterProvider) {
 		controller: 'createPatientCtrl'
 	})
 	.state('updatePatient', {
-		url: '/patients/{id}/updatePatient',
+		//url: '/patients/{id}/updatePatient',
+		url: '/patients/:id/updatePatient',
 		templateUrl: 'templates/updatePatient.html',
 		controller: 'updatePatientCtrl',
+		//params : ['id'],
 		resolve: {
 			patient: ['$stateParams', 'patients', function($stateParams, patients) {
 			  return patients.get($stateParams.id);
@@ -235,8 +210,8 @@ app.controller('createPatientCtrl', [
 	'$state'	,
 	'$timeout',
 	'patients',	
-	'AlertService',
-	function($scope, $location,$state, $timeout,patients,AlertService){	
+	//'AlertService',
+function($scope, $location,$state, $timeout,patients){//,AlertService){	
 		$scope.createPatient = function(){
 			if(!$scope.lastname || $scope.firstname === '') { return; }
 			patients.create({
@@ -288,32 +263,50 @@ app.controller('updatePatientCtrl', [
 			$state.go('home');
 		};
 		$scope.deletePatient=function(patient){
-			console.log("delete");
-			console.log($stateParams.id);
 			patients.delete(patient);
 			$state.go('home');
 		};
 		// file upload
-		$scope.uploader = new FileUploader();
-		var uploadURL = '/upload/'+patient._id;//'api/upload/’ + currentUser._id
-		console.log(uploadURL);
+		var uploader = $scope.uploader = new FileUploader();
+		var uploadURL = '/upload/'+patient._id;
+		//console.log(uploadURL);
 		$scope.uploadOptions = {
 			queueLimit: 1,
-			autoUpload: true,
-			url: uploadURL
+			//autoUpload: true,
+			url: uploadURL,
+			removeAfterUpload: true //avoid to upload the same file several times 
 		}
  
-		$scope.uploadFile = function(){
+		$scope.uploadFile = function(patient){
+			console.log(patient);
 			if (!$scope.uploader.queue[0]) return;
 			$scope.uploader.queue[0].upload(); 
+			//$scope.uploader.queue
 			console.log('Upload File');
-			//$state.go('updatePatient');
-		}
+			//console.log(patient._id);
+			/*patients.get(patient._id).then(function(patient){
+				$scope.patient = patient;
+			});*/
+			
+        };
+		
+		uploader.onCompleteItem = function(fileItem, response, status, headers) {
+            //console.info('onCompleteItem', fileItem, response, status, headers);
+			patients.get(response._id).then(function(patient){
+				$scope.patient = patient;
+			});
+			//hack 
+			document.getElementById('patientFileUpload').value = null;
+        };
+			
+		
 		$scope.deleteFile = function(patient,file){
-			console.log('Prepare file deletion =>'+file.fileid);
+			//console.log(patient);
 			patients.deleteFile(patient, file);
-			console.log('File deleted =>'+file.fileid);
-			//+patient.file.fileid);
+			//refresh scope after patient file deletion  
+			patients.get(patient._id).then(function(patient){
+				$scope.patient = patient;
+			});
 		}		
 	}	
 ]);
