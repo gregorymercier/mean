@@ -263,8 +263,10 @@ app.controller('updatePatientCtrl', [
 			$state.go('home');
 		};
 		$scope.deletePatient=function(patient){
-			patients.delete(patient);
-			$state.go('home');
+			if(confirm('Voulez-vous vraiement supprimer ce patient ?')){
+				patients.delete(patient);
+				$state.go('home');
+			}
 		};
 		// file upload
 		var uploader = $scope.uploader = new FileUploader();
@@ -301,12 +303,14 @@ app.controller('updatePatientCtrl', [
 			
 		
 		$scope.deleteFile = function(patient,file){
-			//console.log(patient);
-			patients.deleteFile(patient, file);
-			//refresh scope after patient file deletion  
-			patients.get(patient._id).then(function(patient){
-				$scope.patient = patient;
-			});
+			if(confirm('Voulez-vous vraiement supprimer ce fichier ?')){
+				//console.log(patient);
+				patients.deleteFile(patient, file);
+				//refresh scope after patient file deletion  
+				patients.get(patient._id).then(function(patient){
+					$scope.patient = patient;
+				});
+			}
 		}		
 	}	
 ]);
