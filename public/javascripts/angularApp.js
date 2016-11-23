@@ -1,4 +1,4 @@
-var app = angular.module('flapperNews', ['ui.router','angularUtils.directives.dirPagination','angular-growl','ui-notification','ngMessages','angularFileUpload']);//,'ngAnimate', 'toastr']);
+var app = angular.module('flapperNews', ['ui.router','angularUtils.directives.dirPagination','angular-growl','ui-notification','ngMessages','angularFileUpload','toastr']);//,'ngAnimate', 'toastr']);
 
 app.factory('patients', ['$http','growl','$state', function($http,growl,$state){
   var o = {
@@ -243,10 +243,10 @@ app.controller('updatePatientCtrl', [
 	'$stateParams',
 	'patients',
 	'patient',
-	//'toastr',
+	'toastr',
 	'$timeout',
 	'FileUploader',
-	function($scope, $state, $stateParams, patients,patient,$timeout,FileUploader){//,toastr){	
+	function($scope, $state, $stateParams, patients,patient,toastr,$timeout,FileUploader){//, toastr){	
 		$scope.patient = patient;
 		
 		//DOESNT WORK
@@ -299,6 +299,7 @@ app.controller('updatePatientCtrl', [
 			});
 			//hack 
 			document.getElementById('patientFileUpload').value = null;
+			toastr.success('Fichier ajouté.');
         };
 			
 		
@@ -310,6 +311,7 @@ app.controller('updatePatientCtrl', [
 				patients.get(patient._id).then(function(patient){
 					$scope.patient = patient;
 				});
+				toastr.success('Fichier supprimé.');
 			}
 		}		
 	}	
