@@ -120,7 +120,25 @@ app.factory('AlertService', function () {
     }
   }
 });
-
+app.factory('notificationFactory',function(toastr){
+	var logIt;
+    toastr.options = {
+        "closeButton": true,
+        "positionClass": "toast-bottom-right",
+        "timeOut": "3000"
+    };
+    logIt = function (message, type) {
+        return toastr[type](message);
+    };
+    return {
+        success: function (message) {
+            logIt(message, 'success');
+        },
+        error: function (message) {
+            logIt(message, 'error');
+        }
+    };
+});
 
 
 app.config([
@@ -190,7 +208,8 @@ app.controller('MainCtrl', [
 '$filter',
 'patients',
 'AlertService',
-function($scope,$filter, patients,AlertService){
+'toastr',
+function($scope,$filter, patients,AlertService,toastr){
 	$scope.patients = $filter('filter')(patients.patients, $scope.query);
 	//Add sort functionnality
 	$scope.sort = function(keyname){
@@ -201,6 +220,7 @@ function($scope,$filter, patients,AlertService){
 	$scope.sort('lastname');
 	$scope.pageSize = 10;
 	$scope.success = AlertService.getSuccess();
+	//toastr.success('Demo');
 	
 }]);
 // Patient Form
@@ -210,8 +230,9 @@ app.controller('createPatientCtrl', [
 	'$state'	,
 	'$timeout',
 	'patients',	
-	//'AlertService',
-function($scope, $location,$state, $timeout,patients){//,AlertService){	
+	'AlertService',
+	'toastr',
+function($scope, $location,$state, $timeout,patients,AlertService,toastr){	
 		$scope.createPatient = function(){
 			if(!$scope.lastname || $scope.firstname === '') { return; }
 			patients.create({
@@ -219,20 +240,8 @@ function($scope, $location,$state, $timeout,patients){//,AlertService){
 				firstname: $scope.firstname
 			});
 			console.log("patient créé");
-			//AlertService.setSuccess({ show: true, msg: $scope.lastname + ' has been updated successfully.' });
-			//$location.path("#/home");
+			toastr.success('Patient créé');
 			$state.go('home');
-			$scope.alert = {
-				type: 'success',
-				message: 'patient créé'
-			};
-			$timeout(function() {
-				$scope.alert = undefined;
- 
-			}, 3000);
-			//window.location='#/home';
-			//growl.success("Patient créé ");
-			//Notification.success('Success notification');
 		};
 		
 	}
