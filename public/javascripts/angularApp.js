@@ -230,16 +230,21 @@ app.controller('createPatientCtrl', [
 	'$state'	,
 	'$timeout',
 	'patients',	
-	'AlertService',
 	'toastr',
-function($scope, $location,$state, $timeout,patients,AlertService,toastr){	
+function($scope, $location,$state, $timeout,patients,toastr){	
 		$scope.createPatient = function(){
 			if(!$scope.lastname || $scope.firstname === '') { return; }
 			patients.create({
 				lastname: $scope.lastname,
-				firstname: $scope.firstname
+				firstname: $scope.firstname,
+				email: $scope.email,
+				phone: $scope.phone,
+				phone2: $scope.phone2,
+				address: $scope.address,
+				zipcode: $scope.zipcode,
+				city: $scope.city
 			});
-			console.log("patient créé");
+			//console.log("patient créé");
 			toastr.success('Patient créé');
 			$state.go('home');
 		};
@@ -261,14 +266,15 @@ app.controller('updatePatientCtrl', [
 		//DOESNT WORK
 		//$scope.post = posts.get($stateParams.id);
 		$scope.updatePatient=function(patient){
-			console.log('in update process');
-			console.log("update id : "+ patient._id);
-			console.log($stateParams.id);
+			//console.log('in update process');
+			//console.log("update id : "+ patient._id);
+			//console.log($stateParams.id);
 			//posts.update({id: post._id}, $scope.post);
 			patients.update(patient, {lastname: $scope.lastname,
 								firstname: $scope.firstname});
 			
 			//console.log("updated");
+			toastr.success('Patient mis à jour');
 			$state.go('home');
 		};
 		$scope.deletePatient=function(patient){

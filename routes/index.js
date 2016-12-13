@@ -67,16 +67,23 @@
 	// update single patient 
 	router.put('/patients/:id', function (req, res){
 		return Patient.findById(req.params.id, function (err, patient) {
-			console.log(req.params.id);
+			//console.log(req.params.id);
 			patient.lastname = req.body.lastname;
 			patient.firstname = req.body.firstname;
-			console.log(req.body);	
+			patient.email = req.body.email;
+			patient.phone = req.body.phone;
+			patient.phone2 = req.body.phone2;
+			patient.address = req.body.address;
+			patient.zipcode = req.body.zipcode;
+			patient.city = req.body.city;
+			//console.log(req.body);	
 			return patient.save(function (err) {
 			  if (!err) {
-				console.log("updated");
+				console.log("Patient loaded.");
 			  } else {
 				console.log(err);
 			  }
+			  console.log(patient);
 			  res.json(patient);
 			});
 		});
