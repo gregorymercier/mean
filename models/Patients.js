@@ -10,7 +10,16 @@ var PatientSchema = new mongoose.Schema({
   phone2:String,
   address: String,
   zipcode: String,
-  city: String
+  city: String,
+  //
+  job : String,
+  family_situation : String,
+  physical_activity : String,
+  size_m : Number,
+  weight_kg : Number,
+  birthday : Date,
+  pathology :[pathology_name : String]
+  
 });
 
 mongoose.model('Patient', PatientSchema);

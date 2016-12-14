@@ -162,6 +162,16 @@ function($stateProvider, $urlRouterProvider) {
 		templateUrl: 'templates/createPatient.html',
 		controller: 'createPatientCtrl'
 	})
+	.state('createPatient-step1', {
+		url: '/createPatient-step1',
+		templateUrl: 'templates/createPatient-step1.html',
+		//controller: 'createPatientCtrl'
+	})
+	.state('createPatient-step2', {
+		url: '/createPatient-step2',
+		templateUrl: 'templates/createPatient-step2.html',
+		//controller: 'createPatientCtrl'
+	})
 	.state('updatePatient', {
 		//url: '/patients/{id}/updatePatient',
 		url: '/patients/:id/updatePatient',
